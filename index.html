@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Álbum dos Grandes Matemáticos — Gerador de Figurinhas</title>
+<script src="/html2canvas.min.js"></script>
+<style>
+:root{
+  --pitch:#0E2B22;
+  --pitch-2:#123528;
+  --midnight:#0B1C36;
+  --midnight-2:#132a4d;
+  --paper:#F6F1E4;
+  --ink:#111827;
+  --muted:#8FA3B0;
+  --steel:#94A3B8;
+  --foil:#2F6FED;
+  --epic:#7C3AED;
+  --gold:#D4A017;
+  --br-green:#009C3B;
+  --br-yellow:#FFDF00;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Roboto Mono",monospace;
+  --display:"Arial Black","Arial Bold",Impact,system-ui,sans-serif;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:var(--body);
+  background:var(--pitch);
+  background-image:repeating-linear-gradient(90deg,rgba(255,255,255,.022) 0 60px,transparent 60px 120px);
+  color:#E8EEF2;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ---------- chrome ---------- */
+.wrap{max-width:1360px;margin:0 auto;padding:28px 20px 80px}
+header.top{border-bottom:2px solid rgba(255,255,255,.12);padding-bottom:18px;margin-bottom:22px}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--br-yellow);margin:0 0 6px}
+h1{font-family:var(--display);font-size:clamp(26px,4.4vw,44px);line-height:.98;letter-spacing:-.02em;margin:0;text-transform:uppercase}
+h1 em{font-style:normal;color:var(--br-yellow)}
+.sub{color:#B9CBC2;font-size:14px;max-width:70ch;margin:10px 0 0;line-height:1.5}
+
+nav.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0 0}
+nav.tabs button{
+  font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+  background:rgba(255,255,255,.06);color:#CFE0D7;border:1px solid rgba(255,255,255,.14);
+  padding:9px 14px;border-radius:999px;cursor:pointer;transition:.15s;
+}
+nav.tabs button:hover{background:rgba(255,255,255,.13)}
+nav.tabs button[aria-selected="true"]{background:var(--br-yellow);color:#0E2B22;border-color:var(--br-yellow);font-weight:700}
+nav.tabs button:focus-visible{outline:2px solid #fff;outline-offset:2px}
+
+.panel{display:none}
+.panel.active{display:block}
+
+.toolbar{
+  display:flex;flex-wrap:wrap;gap:10px;align-items:center;
+  background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.1);
+  border-radius:14px;padding:12px 14px;margin:22px 0;
+}
+.toolbar label{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+select,.btn{
+  font-family:var(--body);font-size:13px;border-radius:9px;border:1px solid rgba(255,255,255,.18);
+  background:#0d2119;color:#E8EEF2;padding:8px 12px;cursor:pointer;
+}
+.btn.primary{background:var(--br-yellow);color:#0E2B22;border-color:var(--br-yellow);font-weight:700}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn:hover{background:#164033}
+.btn.primary:disabled,.btn:disabled{opacity:.5;cursor:progress}
+.counter{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--muted)}
+
+.hint{
+  border-left:3px solid var(--br-yellow);background:rgba(255,223,0,.07);
+  padding:12px 16px;border-radius:0 10px 10px 0;font-size:13.5px;line-height:1.6;color:#DDE9E2;margin:0 0 22px;
+}
+.hint b{color:#fff}
+
+/* ---------- grid ---------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(285px,1fr));gap:26px}
+.slot{display:flex;flex-direction:column;align-items:center}
+.stage{width:285px;height:399px;position:relative}
+.stage .card{position:absolute;top:0;left:0;transform:scale(.57);transform-origin:top left}
+.slot-actions{display:flex;gap:6px;margin-top:10px;width:285px}
+.slot-actions .btn{flex:1;padding:7px 8px;font-size:12px;text-align:center}
+
+/* ---------- CARD 500x700 ---------- */
+.card{
+  width:500px;height:700px;border-radius:20px;padding:11px;
+  background:linear-gradient(160deg,#c9cfd6 0%,#8e979f 38%,#eef2f5 52%,#78838c 68%,#b6bec6 100%);
+  box-shadow:0 18px 40px rgba(0,0,0,.45);
+  font-family:var(--body);
+}
+.card.rara{background:linear-gradient(160deg,#9fc0ff 0%,#3f6fd8 38%,#dce8ff 52%,#2a55b0 68%,#7fa4f0 100%)}
+.card.epica{background:linear-gradient(160deg,#cbb4ff 0%,#7b3fe4 38%,#efe6ff 52%,#5a23b8 68%,#a98bf5 100%)}
+.card.lendaria{background:linear-gradient(160deg,#ffe9a8 0%,#d9a01a 36%,#fff8dd 52%,#a9761a 68%,#f2cd66 100%)}
+.card.brasil{background:linear-gradient(160deg,#7ce8a6 0%,#009C3B 36%,#FFDF00 52%,#046a2c 68%,#5fdc90 100%)}
+
+.inner{height:100%;border-radius:13px;overflow:hidden;background:var(--midnight);display:flex;flex-direction:column;border:1px solid rgba(0,0,0,.5)}
+
+.photo{
+  height:236px;position:relative;flex:none;
+  background:radial-gradient(120% 100% at 50% 0%,#1d3a63 0%,#0B1C36 70%);
+  overflow:hidden;
+}
+.photo .formulas{
+  position:absolute;inset:0;color:rgba(255,255,255,.09);
+  font-family:Georgia,"Times New Roman",serif;font-style:italic;
+  font-size:22px;line-height:1.9;padding:10px 14px;letter-spacing:.06em;user-select:none;
+}
+.photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 22%}
+.photo .shade{position:absolute;left:0;right:0;bottom:0;height:90px;background:linear-gradient(to top,rgba(11,28,54,.95),rgba(11,28,54,0))}
+.drop{
+  position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);
+  width:180px;height:150px;border:2px dashed rgba(255,255,255,.35);border-radius:10px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+  color:rgba(255,255,255,.62);font-size:12px;text-align:center;padding:8px;
+}
+.drop .plus{font-size:26px;line-height:1}
+
+.num{
+  position:absolute;top:12px;left:12px;z-index:3;
+  font-family:var(--mono);font-weight:700;font-size:23px;color:#fff;
+  background:rgba(11,28,54,.86);border:1px solid rgba(255,255,255,.4);
+  padding:4px 12px 5px;border-radius:7px;letter-spacing:.02em;
+}
+.rar{
+  position:absolute;top:12px;right:12px;z-index:3;text-align:right;
+  background:rgba(11,28,54,.86);border:1px solid rgba(255,255,255,.4);
+  padding:5px 12px 6px;border-radius:7px;
+}
+.rar b{display:block;font-family:var(--display);font-size:14px;letter-spacing:.12em;color:#fff;line-height:1}
+.rar span{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.2em;margin-top:3px;color:#cfd8e3}
+.card.rara .rar b{color:#bcd4ff}
+.card.epica .rar b{color:#d9c6ff}
+.card.lendaria .rar b{color:#ffe08a}
+.card.brasil .rar b{color:#a8f0c4}
+
+.namebar{
+  height:48px;flex:none;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(180deg,#1b3560,#0e2244);border-top:2px solid rgba(255,255,255,.25);border-bottom:2px solid rgba(0,0,0,.5);
+}
+.card.rara .namebar{background:linear-gradient(180deg,#17356e,#0b1e42)}
+.card.epica .namebar{background:linear-gradient(180deg,#33195e,#1a0c33)}
+.card.lendaria .namebar{background:linear-gradient(180deg,#4a3407,#241802)}
+.card.brasil .namebar{background:linear-gradient(180deg,#0a5c2c,#03301a)}
+.namebar h2{
+  margin:0;font-family:var(--display);text-transform:uppercase;color:#fff;
+  font-size:29px;letter-spacing:.01em;line-height:1;white-space:nowrap;
+  text-shadow:0 2px 0 rgba(0,0,0,.55);
+}
+.namebar h2.long{font-size:23px}
+.namebar h2.xlong{font-size:19px}
+
+.meta{
+  height:52px;flex:none;display:flex;background:var(--paper);color:var(--ink);border-bottom:1px solid #cfc7b4;
+}
+.meta div{flex:1;padding:7px 12px;display:flex;flex-direction:column;justify-content:center}
+.meta div+div{border-left:1px solid #cfc7b4}
+.meta .k{font-family:var(--mono);font-size:9px;letter-spacing:.16em;color:#7a7057;text-transform:uppercase}
+.meta .v{font-size:13px;font-weight:700;line-height:1.15;margin-top:2px}
+.meta .v.sm{font-size:11.5px}
+
+.block{
+  flex:1;min-height:0;background:var(--paper);color:var(--ink);
+  padding:9px 13px;display:flex;gap:10px;border-bottom:1px solid #cfc7b4;
+}
+.block .icon{
+  flex:none;width:34px;height:34px;border-radius:50%;background:var(--midnight);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:17px;margin-top:2px;
+}
+.card.lendaria .block .icon{background:#6b4a06}
+.card.brasil .block .icon{background:#03301a}
+.block .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;color:#7a7057;text-transform:uppercase;margin-bottom:3px}
+.block .t{font-size:12.5px;line-height:1.34;color:#22303c}
+
+.attrs{flex:none;background:#0d1f3b;padding:9px 13px 11px}
+.attrs .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;color:#8fa3c0;text-transform:uppercase;margin-bottom:7px}
+.row{display:flex;align-items:center;gap:9px;margin-bottom:6px}
+.row:last-child{margin-bottom:0}
+.row .lab{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:#dbe6f2;width:96px;text-transform:uppercase}
+.bar{flex:1;height:12px;border-radius:7px;background:#1c3155;overflow:hidden;border:1px solid rgba(255,255,255,.14)}
+.fill{height:100%;border-radius:6px}
+.f1{background:linear-gradient(90deg,#f0468a,#c9126a)}
+.f2{background:linear-gradient(90deg,#ffd86b,#e8a80f)}
+.f3{background:linear-gradient(90deg,#ff7a5c,#d92b1c)}
+.val{font-family:var(--mono);font-size:12px;font-weight:700;color:#0d1f3b;background:#dfe8f3;border-radius:5px;padding:2px 7px;min-width:38px;text-align:center}
+
+[contenteditable]:focus{outline:2px solid #ffd400;outline-offset:2px;border-radius:3px}
+
+/* ---------- páginas especiais ---------- */
+.sheet{background:var(--paper);color:var(--ink);border-radius:16px;padding:34px 38px;max-width:900px}
+.sheet h3{font-family:var(--display);text-transform:uppercase;font-size:26px;margin:0 0 4px;letter-spacing:-.01em}
+.sheet .lede{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#7a7057;margin:0 0 20px}
+.sheet p{font-size:14.5px;line-height:1.65;color:#22303c}
+.sheet h4{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#7a7057;margin:26px 0 8px}
+.sheet ul{margin:0;padding-left:20px;font-size:14.5px;line-height:1.7;color:#22303c}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:center}
+@media(max-width:760px){.two{grid-template-columns:1fr}}
+.formula{
+  font-family:Georgia,serif;font-size:30px;text-align:center;padding:16px;margin:14px 0;
+  background:#0B1C36;color:#FFDF00;border-radius:12px;letter-spacing:.04em;
+}
+
+/* pitch */
+.pitch{
+  position:relative;width:100%;max-width:760px;aspect-ratio:3/4;border-radius:16px;
+  background:
+    repeating-linear-gradient(180deg,#12603b 0 8%,#0f5434 8% 16%);
+  border:3px solid rgba(255,255,255,.55);overflow:hidden;margin:0 auto;
+}
+.pitch .lines{position:absolute;inset:0}
+.pitch .lines i{position:absolute;border:2px solid rgba(255,255,255,.45)}
+.mid{left:0;right:0;top:50%;height:0;border-width:0 0 2px 0 !important}
+.circle{left:50%;top:50%;width:26%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%}
+.boxT{left:25%;right:25%;top:0;height:14%;border-top:0 !important}
+.boxB{left:25%;right:25%;bottom:0;height:14%;border-bottom:0 !important}
+.player{position:absolute;transform:translate(-50%,-50%);width:120px;text-align:center;color:#fff}
+.player .shirt{
+  width:44px;height:44px;margin:0 auto 5px;border-radius:9px;background:#FFDF00;color:#0E2B22;
+  font-family:var(--display);font-size:19px;display:flex;align-items:center;justify-content:center;
+  border:2px solid #fff;box-shadow:0 3px 8px rgba(0,0,0,.4);
+}
+.player .nm{font-family:var(--display);font-size:12.5px;text-transform:uppercase;line-height:1.15;text-shadow:0 2px 4px rgba(0,0,0,.8)}
+.player .ps{font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:#d8ffe9;margin-top:2px;text-shadow:0 1px 3px rgba(0,0,0,.9)}
+@media(max-width:620px){.player{width:88px}.player .shirt{width:34px;height:34px;font-size:15px}.player .nm{font-size:10px}.player .ps{font-size:8px}}
+
+.rubric{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}
+.rubric th,.rubric td{border:1px solid #cfc7b4;padding:9px 12px;text-align:left}
+.rubric th{background:#e8e0cd;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+.rubric td:last-child{text-align:right;font-family:var(--mono);font-weight:700;width:90px}
+
+.check{list-style:none;padding:0;margin:0}
+.check li{padding:8px 0 8px 30px;position:relative;border-bottom:1px dashed #cfc7b4;font-size:14.5px;line-height:1.5}
+.check li:before{content:"✓";position:absolute;left:4px;top:7px;font-size:17px;color:#7a7057}
+
+.status{font-family:var(--mono);font-size:12px;color:var(--br-yellow);min-height:18px;margin:6px 0 0}
+.hidden-stage{position:fixed;left:-99999px;top:0;z-index:-1}
+@media print{body{background:#fff}nav.tabs,.toolbar,.slot-actions,header.top .sub{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <p class="eyebrow">Trabalho de Matemática · Turma / Grupo de até 4</p>
+  <h1>Álbum dos Grandes <em>Matemáticos</em></h1>
+  <p class="sub">28 figurinhas prontas: 25 do roteiro da professora, divididas nas 5 categorias, mais 3 brasileiros para o desafio bônus. Coloque a foto de cada cientista, ajuste o texto se quiser e baixe em PNG para montar no Canva, PowerPoint ou Google Slides.</p>
+  <nav class="tabs" role="tablist">
+    <button role="tab" data-tab="capa" aria-selected="true">Capa</button>
+    <button role="tab" data-tab="figurinhas" aria-selected="false">Figurinhas</button>
+    <button role="tab" data-tab="teorema" aria-selected="false">Página especial</button>
+    <button role="tab" data-tab="time" aria-selected="false">Time dos sonhos</button>
+    <button role="tab" data-tab="guia" aria-selected="false">Guia de entrega</button>
+  </nav>
+</header>
+
+<!-- CAPA -->
+<section class="panel active" id="p-capa">
+  <div class="hint"><b>Como usar:</b> vá em <b>Figurinhas</b> — as fotos são baixadas sozinhas da Wikipédia assim que a página abre (precisa de internet). Se alguma não vier, clique na área da foto do card para escolher uma imagem do computador. Depois é só <b>Baixar PNG</b>.</div>
+  <div id="capaStage"></div>
+  <div style="margin-top:14px"><button class="btn primary" id="dlCapa">Baixar capa em PNG</button></div>
+</section>
+
+<!-- FIGURINHAS -->
+<section class="panel" id="p-figurinhas">
+  <div class="toolbar">
+    <label for="fCat">Categoria</label>
+    <select id="fCat"><option value="">Todas</option></select>
+    <label for="fRar">Raridade</label>
+    <select id="fRar">
+      <option value="">Todas</option>
+      <option value="comum">Comum</option>
+      <option value="rara">Rara</option>
+      <option value="epica">Épica</option>
+      <option value="lendaria">Lendária</option>
+      <option value="brasil">Bônus Brasil</option>
+    </select>
+    <button class="btn" id="getPics">Buscar fotos na Wikipédia</button>
+    <button class="btn primary" id="dlAll">Baixar todas em PNG</button>
+    <span class="counter" id="count"></span>
+  </div>
+  <p class="status" id="status"></p>
+  <div class="grid" id="grid"></div>
+</section>
+
+<!-- TEOREMA -->
+<section class="panel" id="p-teorema">
+  <div class="sheet" id="teoremaSheet">
+    <p class="lede">Página especial · Descoberta em destaque</p>
+    <h3>O Teorema de Pitágoras</h3>
+    <div class="two">
+      <div>
+        <p>Em todo triângulo retângulo, o quadrado construído sobre a hipotenusa tem exatamente a mesma área que a soma dos quadrados construídos sobre os catetos. É a relação mais reaproveitada da matemática: aparece em geometria, trigonometria, geometria analítica e até na fórmula da distância entre dois pontos.</p>
+        <div class="formula">a² + b² = c²</div>
+        <p style="font-size:13px;color:#5c6b78">A figura ao lado mostra por que o nome é "quadrado": cada termo é a área de um quadrado real apoiado num lado do triângulo. As duas áreas menores, juntas, preenchem a maior.</p>
+      </div>
+      <div>
+        <svg viewBox="0 0 320 320" width="100%" role="img" aria-label="Triângulo retângulo com quadrados nos três lados">
+          <rect x="120" y="40" width="120" height="120" fill="#0B1C36" opacity=".9"/>
+          <text x="180" y="108" text-anchor="middle" fill="#FFDF00" font-family="Georgia,serif" font-size="30" font-style="italic">c²</text>
+          <rect x="30" y="160" width="90" height="90" fill="#2F6FED" opacity=".85"/>
+          <text x="75" y="217" text-anchor="middle" fill="#fff" font-family="Georgia,serif" font-size="26" font-style="italic">b²</text>
+          <rect x="120" y="250" width="120" height="60" fill="#D4A017" opacity=".9"/>
+          <text x="180" y="290" text-anchor="middle" fill="#0B1C36" font-family="Georgia,serif" font-size="26" font-style="italic">a²</text>
+          <polygon points="120,160 240,160 120,250" fill="#F6F1E4" stroke="#111827" stroke-width="2"/>
+          <rect x="120" y="160" width="18" height="18" fill="none" stroke="#111827" stroke-width="2"/>
+        </svg>
+      </div>
+    </div>
+    <h4>Onde isso aparece no dia a dia</h4>
+    <ul>
+      <li>Pedreiro conferindo se a parede está no esquadro pelo método 3-4-5.</li>
+      <li>GPS e mapas: a distância em linha reta entre dois pontos é hipotenusa.</li>
+      <li>Tamanho de TV e celular: "55 polegadas" é a diagonal da tela.</li>
+      <li>Escada apoiada na parede: altura, afastamento e comprimento da escada.</li>
+    </ul>
+    <h4>Ficha rápida</h4>
+    <ul>
+      <li><b>Quem:</b> Pitágoras de Samos (c. 570–495 a.C.) e a escola pitagórica.</li>
+      <li><b>Antes dele:</b> babilônios e egípcios já usavam a relação na prática; a novidade grega foi <i>demonstrar</i> que ela sempre vale.</li>
+      <li><b>Efeito colateral:</b> aplicar o teorema a um quadrado de lado 1 dá √2, um número que não é fração — o primeiro número irracional conhecido.</li>
+    </ul>
+  </div>
+  <div style="margin-top:14px"><button class="btn primary" id="dlTeorema">Baixar página em PNG</button></div>
+</section>
+
+<!-- TIME -->
+<section class="panel" id="p-time">
+  <div class="hint">As 11 lendas escolhidas, no esquema <b>4-3-3</b>. A posição de cada um foi escolhida pelo tipo de contribuição: quem construiu a base fica atrás, quem distribuiu ideias para todas as áreas fica no meio, quem marcou os grandes resultados fica na frente.</div>
+  <div id="pitchWrap"></div>
+  <div style="margin-top:14px"><button class="btn primary" id="dlTime">Baixar escalação em PNG</button></div>
+</section>
+
+<!-- GUIA -->
+<section class="panel" id="p-guia">
+  <div class="sheet">
+    <p class="lede">Checklist e critérios</p>
+    <h3>O que precisa estar na entrega</h3>
+    <ul class="check">
+      <li>Capa personalizada do álbum</li>
+      <li>Entre 20 e 30 figurinhas, numeradas e organizadas por categoria</li>
+      <li>Cada figurinha com foto, nome, país, área, contribuição, curiosidade e notas de atributo</li>
+      <li>Pelo menos 2 figurinhas raras com visual diferente das comuns</li>
+      <li>1 página especial sobre uma grande descoberta (aqui: Teorema de Pitágoras)</li>
+      <li>1 "time dos sonhos" com 11 nomes</li>
+      <li>Bônus: figurinha de matemático(a) brasileiro(a)</li>
+      <li>Arquivo final em Canva, PowerPoint ou Google Slides</li>
+    </ul>
+
+    <h4>Critérios de avaliação</h4>
+    <table class="rubric">
+      <tr><th>Critério</th><th>Pontos</th></tr>
+      <tr><td>Pesquisa e qualidade das informações</td><td>3,0</td></tr>
+      <tr><td>Criatividade e organização</td><td>2,0</td></tr>
+      <tr><td>Qualidade visual das figurinhas</td><td>2,0</td></tr>
+      <tr><td>Relação com conteúdos de Matemática</td><td>2,0</td></tr>
+      <tr><td>Participação / apresentação do grupo</td><td>1,0</td></tr>
+      <tr><td><b>Total</b></td><td><b>10,0</b></td></tr>
+    </table>
+
+    <h4>Divisão do grupo (5 figurinhas por pessoa)</h4>
+    <ul>
+      <li><b>Pessoa 1</b> — nº 1 a 5: Matemática da Antiguidade</li>
+      <li><b>Pessoa 2</b> — nº 6 a 10: Álgebra e Trigonometria</li>
+      <li><b>Pessoa 3</b> — nº 11 a 15: Reis do Cálculo e da Análise</li>
+      <li><b>Pessoa 4</b> — nº 16 a 20: Mulheres na Matemática</li>
+      <li><b>Juntos</b> — nº 21 a 25 (Moderna), 26 a 28 (bônus Brasil), capa, página especial e time dos sonhos</li>
+    </ul>
+
+    <h4>Montando no Canva ou no Slides</h4>
+    <ul>
+      <li>Cada PNG sai em 1000×1400 px — dá para imprimir grande sem borrar.</li>
+      <li>No Canva, use slide de 1920×1080 e coloque 4 figurinhas por página, com o nome da categoria no topo.</li>
+      <li>Para imprimir e recortar de verdade: cada figurinha fica em 6 cm × 8,4 cm, e cabem 6 por folha A4.</li>
+      <li>As fotos vêm da Wikipédia automaticamente. Para trocar por outra, clique na área da foto do card e escolha uma imagem do computador — ela fica salva no servidor e continua aparecendo da próxima vez.</li>
+      <li>Nos antigos (Pitágoras, Tales, Euclides, Hipátia) o que existe são bustos e gravuras feitas séculos depois — vale escrever "representação artística" embaixo, fica mais honesto e o professor nota.</li>
+    </ul>
+
+    <h4>Fontes para citar no final do álbum</h4>
+    <ul>
+      <li>Wikipédia / Wikimedia Commons (retratos e biografias)</li>
+      <li>MacTutor History of Mathematics — mathshistory.st-andrews.ac.uk</li>
+      <li>IMPA e SBM (para os matemáticos brasileiros)</li>
+    </ul>
+    <p style="font-size:13px;color:#5c6b78;margin-top:22px">Confira as datas e os dados nas fontes acima antes de entregar — vale ponto em "pesquisa e qualidade das informações", e o professor costuma checar um ou dois.</p>
+  </div>
+</section>
+
+</div>
+<div class="hidden-stage" id="hidden"></div>
+
+<script>
+const CATS = {
+  1:"Matemática da Antiguidade",
+  2:"Álgebra e Trigonometria",
+  3:"Reis do Cálculo e da Análise",
+  4:"Mulheres na Matemática",
+  5:"Matemática Moderna e Contemporânea",
+  6:"Bônus — Brasil"
+};
+const RAR = {
+  comum:{b:"COMUM",s:"BASE"},
+  rara:{b:"RARA",s:"FOIL AZUL"},
+  epica:{b:"ÉPICA",s:"PRATA"},
+  lendaria:{b:"LENDÁRIA",s:"OURO"},
+  brasil:{b:"BÔNUS",s:"BRASIL"}
+};
+
+const WIKI = {
+ 1:["Pythagoras","Pitágoras"],
+ 2:["Thales of Miletus","Tales de Mileto"],
+ 3:["Euclid","Euclides"],
+ 4:["Archimedes","Arquimedes"],
+ 5:["Hypatia","Hipátia"],
+ 6:["Al-Khwarizmi","Muhammad ibn Musa al-Khwarizmi"],
+ 7:["Bhaskara II","Bhaskara II"],
+ 8:["Omar Khayyam","Omar Khayyam"],
+ 9:["Fibonacci","Fibonacci"],
+ 10:["René Descartes","René Descartes"],
+ 11:["Isaac Newton","Isaac Newton"],
+ 12:["Gottfried Wilhelm Leibniz","Gottfried Leibniz"],
+ 13:["Leonhard Euler","Leonhard Euler"],
+ 14:["Blaise Pascal","Blaise Pascal"],
+ 15:["Pierre de Fermat","Pierre de Fermat"],
+ 16:["Ada Lovelace","Ada Lovelace"],
+ 17:["Sophie Germain","Sophie Germain"],
+ 18:["Emmy Noether","Emmy Noether"],
+ 19:["Katherine Johnson","Katherine Johnson"],
+ 20:["Maryam Mirzakhani","Maryam Mirzakhani"],
+ 21:["Carl Friedrich Gauss","Carl Friedrich Gauss"],
+ 22:["Alan Turing","Alan Turing"],
+ 23:["Georg Cantor","Georg Cantor"],
+ 24:["John von Neumann","John von Neumann"],
+ 25:["Terence Tao","Terence Tao"],
+ 26:["Artur Avila","Artur Avila"],
+ 27:["Manfredo do Carmo","Manfredo do Carmo"],
+ 28:["Joaquim Gomes de Souza","Joaquim Gomes de Sousa"]
+};
+
+const D = [
+ {n:1,cat:1,r:"comum",nome:"Pitágoras",pais:"Grécia",area:"Geometria e Teoria dos Números",
+  c:"O Teorema de Pitágoras, que relaciona os lados de qualquer triângulo retângulo e virou base da geometria e da trigonometria.",
+  q:"Liderava uma escola secreta que acreditava que \"tudo é número\" — e teve um choque ao descobrir que √2 não é fração.",
+  a:[92,88,97]},
+ {n:2,cat:1,r:"comum",nome:"Tales de Mileto",pais:"Grécia",area:"Geometria",
+  c:"O Teorema de Tales, sobre retas paralelas cortadas por transversais, e a primeira ideia de demonstrar em vez de só medir.",
+  q:"Calculou a altura da Pirâmide de Quéops medindo a sombra dela e comparando com a sombra de um bastão.",
+  a:[90,85,88]},
+ {n:3,cat:1,r:"rara",nome:"Euclides",pais:"Grécia / Egito",area:"Geometria",
+  c:"Escreveu \"Os Elementos\", que organizou toda a geometria a partir de poucos axiomas e foi livro didático por 2000 anos.",
+  q:"Quando o rei Ptolomeu pediu um jeito mais fácil de aprender, respondeu: \"não há estrada real para a geometria\".",
+  a:[95,82,96]},
+ {n:4,cat:1,r:"epica",nome:"Arquimedes",pais:"Grécia (Siracusa)",area:"Geometria e Matemática Aplicada",
+  c:"Calculou a área do círculo e o volume da esfera pelo método da exaustão, antecipando ideias do cálculo integral.",
+  q:"Descobriu o princípio do empuxo no banho e saiu correndo gritando \"Eureka!\". Sua última frase teria sido \"não perturbe meus círculos\".",
+  a:[97,96,97]},
+ {n:5,cat:1,r:"rara",nome:"Hipátia",pais:"Egito (Alexandria)",area:"Álgebra, Geometria e Astronomia",
+  c:"Comentou e preservou as obras de Diofanto e Apolônio, tornando esses textos utilizáveis por gerações seguintes.",
+  q:"É a primeira matemática mulher de quem temos registro histórico confiável, e dirigia a escola neoplatônica de Alexandria.",
+  a:[90,86,84]},
+
+ {n:6,cat:2,r:"epica",nome:"Al-Khwarizmi",pais:"Pérsia",area:"Álgebra",
+  c:"Criou o primeiro método sistemático para resolver equações e ajudou a espalhar os algarismos indo-arábicos que usamos hoje.",
+  q:"A palavra \"álgebra\" vem do título do livro dele, e a palavra \"algoritmo\" vem do próprio nome dele.",
+  a:[94,90,95]},
+ {n:7,cat:2,r:"comum",nome:"Bhaskara II",pais:"Índia",area:"Álgebra e Astronomia",
+  c:"Avançou na resolução de equações e chegou perto de ideias de derivada 500 anos antes de Newton e Leibniz.",
+  q:"No Brasil a fórmula da equação do 2º grau leva o nome dele — mas isso é costume só daqui: ele não escreveu a fórmula desse jeito.",
+  a:[89,84,82]},
+ {n:8,cat:2,r:"comum",nome:"Omar Khayyam",pais:"Pérsia",area:"Álgebra e Geometria",
+  c:"Resolveu equações do 3º grau por construções geométricas e criou um calendário mais preciso que o europeu da época.",
+  q:"Fora da matemática, é um dos poetas mais lidos do mundo: escreveu os versos do \"Rubaiyat\".",
+  a:[88,92,80]},
+ {n:9,cat:2,r:"comum",nome:"Leonardo Fibonacci",pais:"Itália",area:"Aritmética e Teoria dos Números",
+  c:"Levou os algarismos indo-arábicos para a Europa no livro \"Liber Abaci\" e apresentou a sequência que leva seu nome.",
+  q:"A sequência 1,1,2,3,5,8,13… aparece em girassóis, pinhas e conchas, e a razão entre os termos se aproxima do número de ouro.",
+  a:[85,88,86]},
+ {n:10,cat:2,r:"rara",nome:"René Descartes",pais:"França",area:"Geometria Analítica",
+  c:"Uniu álgebra e geometria criando o plano cartesiano — todo gráfico com eixos x e y vem daí.",
+  q:"Conta a lenda que teve a ideia observando uma mosca andar pelo teto e pensando em como descrever a posição dela por números.",
+  a:[93,94,95]},
+
+ {n:11,cat:3,r:"epica",nome:"Isaac Newton",pais:"Inglaterra",area:"Cálculo e Física Matemática",
+  c:"Criou o cálculo diferencial e integral e usou matemática para explicar o movimento dos corpos e a gravidade.",
+  q:"Desenvolveu boa parte disso com pouco mais de 20 anos, isolado no sítio da família durante uma epidemia de peste.",
+  a:[99,95,100]},
+ {n:12,cat:3,r:"rara",nome:"Gottfried Leibniz",pais:"Alemanha",area:"Cálculo e Lógica",
+  c:"Criou o cálculo de forma independente e inventou a notação dx e ∫, que é a que o mundo inteiro usa até hoje.",
+  q:"Também desenvolveu o sistema binário, com só 0 e 1 — a linguagem que todos os computadores usam.",
+  a:[97,96,96]},
+ {n:13,cat:3,r:"lendaria",nome:"Leonhard Euler",pais:"Suíça",area:"Análise e Teoria dos Grafos",
+  c:"Padronizou símbolos como e, i, π e f(x), fundou a teoria dos grafos e produziu mais matemática que qualquer outra pessoa.",
+  q:"Ficou cego dos dois olhos e mesmo assim continuou publicando: ditava os cálculos de cabeça para os assistentes.",
+  a:[100,97,99]},
+ {n:14,cat:3,r:"comum",nome:"Blaise Pascal",pais:"França",area:"Probabilidade e Geometria",
+  c:"Fundou a teoria da probabilidade junto com Fermat e organizou o triângulo de Pascal, usado até hoje em binômios.",
+  q:"Aos 19 anos construiu a Pascalina, uma calculadora mecânica, para ajudar o pai a fazer contas de impostos.",
+  a:[92,93,89]},
+ {n:15,cat:3,r:"rara",nome:"Pierre de Fermat",pais:"França",area:"Teoria dos Números",
+  c:"Deixou o Último Teorema de Fermat e resultados centrais de teoria dos números, probabilidade e máximos e mínimos.",
+  q:"Escreveu na margem de um livro que tinha uma prova \"que não cabia naquele espaço\". Levou 358 anos para alguém provar de novo.",
+  a:[96,95,93]},
+
+ {n:16,cat:4,r:"epica",nome:"Ada Lovelace",pais:"Inglaterra",area:"Computação e Lógica",
+  c:"Escreveu o primeiro algoritmo pensado para ser executado por uma máquina, no projeto da Máquina Analítica de Babbage.",
+  q:"Filha do poeta Lord Byron, previu que máquinas um dia poderiam compor música — cem anos antes do primeiro computador existir.",
+  a:[94,98,93]},
+ {n:17,cat:4,r:"comum",nome:"Sophie Germain",pais:"França",area:"Teoria dos Números e Elasticidade",
+  c:"Criou resultados sobre os primos que levam seu nome e fundou a teoria matemática da elasticidade das superfícies.",
+  q:"Como mulheres não podiam estudar na Politécnica, mandava trabalhos assinando \"M. LeBlanc\" para ser levada a sério.",
+  a:[93,90,86]},
+ {n:18,cat:4,r:"epica",nome:"Emmy Noether",pais:"Alemanha",area:"Álgebra Abstrata",
+  c:"O Teorema de Noether liga cada simetria da natureza a uma lei de conservação — é uma das bases da física moderna.",
+  q:"Deu aulas de graça e sob o nome de outro professor por anos, porque a universidade não aceitava contratar mulheres.",
+  a:[98,94,95]},
+ {n:19,cat:4,r:"comum",nome:"Katherine Johnson",pais:"Estados Unidos",area:"Matemática Aplicada e Cálculo Orbital",
+  c:"Calculou as trajetórias das missões Mercury e da Apollo 11, garantindo que as cápsulas voltassem no ponto certo.",
+  q:"O astronauta John Glenn só aceitou decolar depois que ela refez à mão as contas que o computador tinha feito.",
+  a:[95,86,92]},
+ {n:20,cat:4,r:"rara",nome:"Maryam Mirzakhani",pais:"Irã",area:"Geometria e Sistemas Dinâmicos",
+  c:"Resolveu problemas em aberto sobre superfícies curvas e espaços de módulos, abrindo caminhos novos em geometria.",
+  q:"Primeira mulher a ganhar a Medalha Fields, em 2014. Trabalhava deitada no chão sobre folhas enormes, e chamava isso de \"desenhar\".",
+  a:[97,96,90]},
+
+ {n:21,cat:5,r:"lendaria",nome:"Carl F. Gauss",pais:"Alemanha",area:"Teoria dos Números e Estatística",
+  c:"Contribuiu em quase toda a matemática: teoria dos números, geometria não euclidiana e a curva normal da estatística.",
+  q:"Aos 10 anos somou os números de 1 a 100 quase instantaneamente, percebendo que dava para juntá-los em 50 pares de 101.",
+  a:[100,96,100]},
+ {n:22,cat:5,r:"epica",nome:"Alan Turing",pais:"Reino Unido",area:"Lógica Matemática e Computação",
+  c:"Criou a Máquina de Turing, modelo teórico que define o que um computador pode calcular, e ajudou a quebrar o código Enigma.",
+  q:"Era corredor de maratona de nível quase olímpico, e propôs o \"Teste de Turing\" para discutir se uma máquina pensa.",
+  a:[99,97,99]},
+ {n:23,cat:5,r:"comum",nome:"Georg Cantor",pais:"Alemanha",area:"Teoria dos Conjuntos",
+  c:"Provou que existem infinitos de tamanhos diferentes e criou a teoria dos conjuntos, base da matemática moderna.",
+  q:"Foi duramente atacado por colegas na época, que achavam absurda a ideia de comparar infinitos. Hoje ela está no currículo.",
+  a:[96,97,94]},
+ {n:24,cat:5,r:"comum",nome:"John von Neumann",pais:"Hungria / EUA",area:"Teoria dos Jogos e Computação",
+  c:"Criou a teoria dos jogos e a arquitetura de computador que separa memória e processador — usada em quase todo aparelho atual.",
+  q:"Tinha memória e cálculo mental lendários: competia com os primeiros computadores em contas de cabeça e às vezes ganhava.",
+  a:[99,95,96]},
+ {n:25,cat:5,r:"comum",nome:"Terence Tao",pais:"Austrália",area:"Análise e Teoria dos Números",
+  c:"Provou, com Ben Green, que existem sequências de números primos em progressão aritmética de qualquer tamanho.",
+  q:"Chamado de \"Mozart da matemática\": ganhou medalha de ouro na Olimpíada Internacional aos 13 anos, o mais novo da história.",
+  a:[100,94,92]},
+
+ {n:26,cat:6,r:"brasil",nome:"Artur Avila",pais:"Brasil",area:"Sistemas Dinâmicos",
+  c:"Trabalhos sobre sistemas dinâmicos e teoria do caos que lhe renderam a Medalha Fields em 2014.",
+  q:"Carioca, é o primeiro latino-americano a ganhar a Fields. Ganhou ouro na Olimpíada Internacional aos 16 e doutorou-se no IMPA aos 21.",
+  a:[98,94,93]},
+ {n:27,cat:6,r:"brasil",nome:"Manfredo do Carmo",pais:"Brasil",area:"Geometria Diferencial",
+  c:"Referência mundial em geometria diferencial; seus livros são adotados em universidades do mundo inteiro.",
+  q:"Nascido no interior da Bahia, ajudou a transformar o IMPA em um centro de pesquisa de nível internacional.",
+  a:[95,90,88]},
+ {n:28,cat:6,r:"brasil",nome:"Joaquim Gomes de Sousa",pais:"Brasil",area:"Análise Matemática",
+  c:"Conhecido como \"Souzinha\", foi o primeiro brasileiro a apresentar pesquisa matemática original na Europa, no século XIX.",
+  q:"Formou-se em medicina e matemática, virou deputado e mesmo assim publicou trabalhos de análise em Paris e Leipzig.",
+  a:[90,88,80]}
+];
+
+const TIME = [
+ {p:"Goleiro",       n:"Euclides",        num:1,  x:50, y:90},
+ {p:"Lateral dir.",  n:"Descartes",       num:2,  x:83, y:73},
+ {p:"Zagueiro",      n:"Gauss",           num:4,  x:63, y:76},
+ {p:"Zagueiro",      n:"Emmy Noether",    num:3,  x:37, y:76},
+ {p:"Lateral esq.",  n:"Al-Khwarizmi",    num:6,  x:17, y:73},
+ {p:"Volante",       n:"Leibniz",         num:5,  x:50, y:56},
+ {p:"Meia",          n:"Euler",           num:10, x:76, y:47},
+ {p:"Meia",          n:"Arquimedes",      num:8,  x:24, y:47},
+ {p:"Ponta dir.",    n:"Ada Lovelace",    num:7,  x:78, y:23},
+ {p:"Centroavante",  n:"Isaac Newton",    num:9,  x:50, y:16},
+ {p:"Ponta esq.",    n:"Alan Turing",     num:11, x:22, y:23}
+];
+
+const FORMULAS = ["a² + b² = c²   π","∫ f(x) dx    π","e^{iπ} + 1 = 0","∇ · F    Σ    √2","x = (−b ± √Δ)/2a"];
+
+/* ---------------- render card ---------------- */
+function nameClass(s){ return s.length>15 ? (s.length>19?"xlong":"long") : ""; }
+
+function cardHTML(d){
+  const r = RAR[d.r];
+  return `
+  <div class="card ${d.r}" id="card-${d.n}">
+    <div class="inner">
+      <div class="photo" data-n="${d.n}">
+        <div class="formulas">${FORMULAS.join("<br>")}</div>
+        <div class="num">#${String(d.n).padStart(2,"0")}</div>
+        <div class="rar"><b>${r.b}</b><span>${r.s}</span></div>
+        <div class="drop"><span class="plus">+</span>Clique para colocar a foto do(a) cientista</div>
+        <div class="shade"></div>
+      </div>
+      <div class="namebar"><h2 class="${nameClass(d.nome)}" contenteditable="true">${d.nome}</h2></div>
+      <div class="meta">
+        <div><span class="k">País</span><span class="v" contenteditable="true">${d.pais}</span></div>
+        <div><span class="k">Área</span><span class="v sm" contenteditable="true">${d.area}</span></div>
+      </div>
+      <div class="block">
+        <div class="icon">★</div>
+        <div><div class="k">Principal contribuição</div><div class="t" contenteditable="true">${d.c}</div></div>
+      </div>
+      <div class="block">
+        <div class="icon">?</div>
+        <div><div class="k">Curiosidade</div><div class="t" contenteditable="true">${d.q}</div></div>
+      </div>
+      <div class="attrs">
+        <div class="k">Atributos (0–100)</div>
+        <div class="row"><span class="lab">Raciocínio</span><span class="bar"><span class="fill f1" style="width:${d.a[0]}%"></span></span><span class="val">${d.a[0]}</span></div>
+        <div class="row"><span class="lab">Criatividade</span><span class="bar"><span class="fill f2" style="width:${d.a[1]}%"></span></span><span class="val">${d.a[1]}</span></div>
+        <div class="row"><span class="lab">Impacto</span><span class="bar"><span class="fill f3" style="width:${d.a[2]}%"></span></span><span class="val">${d.a[2]}</span></div>
+      </div>
+    </div>
+  </div>`;
+}
+
+const grid = document.getElementById("grid");
+function renderGrid(){
+  const fc = document.getElementById("fCat").value;
+  const fr = document.getElementById("fRar").value;
+  const list = D.filter(d => (!fc || String(d.cat)===fc) && (!fr || d.r===fr));
+  grid.innerHTML = list.map(d => `
+    <div class="slot" data-n="${d.n}">
+      <div class="stage">${cardHTML(d)}</div>
+      <div class="slot-actions">
+        <button class="btn" data-act="foto" data-n="${d.n}">Trocar foto</button>
+        <button class="btn primary" data-act="png" data-n="${d.n}">Baixar PNG</button>
+      </div>
+    </div>`).join("");
+  document.getElementById("count").textContent = list.length + " de " + D.length + " figurinhas";
+  restorePhotos();
+}
+
+const photos = {};
+function restorePhotos(){
+  Object.keys(photos).forEach(n => applyPhoto(n, photos[n]));
+}
+function applyPhoto(n, src){
+  const ph = grid.querySelector(`.photo[data-n="${n}"]`);
+  if(!ph) return;
+  let img = ph.querySelector("img");
+  if(!img){ img = document.createElement("img"); ph.insertBefore(img, ph.querySelector(".shade")); }
+  if(/^https?:/i.test(src)) img.crossOrigin = "anonymous";
+  img.src = src;
+  const drop = ph.querySelector(".drop"); if(drop) drop.style.display="none";
+}
+
+/* ---------- fotos salvas no servidor (sobrescreve a busca da Wikipedia) ---------- */
+const UPLOAD_BASE = "/uploads/";
+function savedPhotoUrl(n){ return UPLOAD_BASE + String(n).padStart(2,"0") + ".jpg"; }
+
+function trySavedPhoto(n){
+  return new Promise(resolve=>{
+    const testImg = new Image();
+    const url = savedPhotoUrl(n) + "?v=" + Date.now();
+    testImg.onload = () => { photos[n] = url; applyPhoto(n, url); resolve(true); };
+    testImg.onerror = () => resolve(false);
+    testImg.src = url;
+  });
+}
+
+/* ---------- fotos automáticas da Wikipédia ---------- */
+async function wikiThumb(title, lang){
+  const url = `https://${lang}.wikipedia.org/w/api.php?action=query&format=json&origin=*`
+            + `&prop=pageimages&piprop=thumbnail&pithumbsize=800&redirects=1&titles=${encodeURIComponent(title)}`;
+  const res = await fetch(url);
+  if(!res.ok) return null;
+  const json = await res.json();
+  const pages = json && json.query && json.query.pages;
+  if(!pages) return null;
+  for(const k in pages){ if(pages[k].thumbnail && pages[k].thumbnail.source) return pages[k].thumbnail.source; }
+  return null;
+}
+
+async function fetchAllPhotos(force){
+  const btn = document.getElementById("getPics");
+  btn.disabled = true;
+  let ok = 0, fail = [];
+  for(const d of D){
+    if(photos[d.n] && !force){ ok++; continue; }
+    if(!force){
+      const hasSaved = await trySavedPhoto(d.n);
+      if(hasSaved){ ok++; continue; }
+    }
+    status.textContent = `Buscando fotos… ${ok + fail.length + 1} de ${D.length}`;
+    const [en, pt] = WIKI[d.n];
+    let src = null;
+    try{ src = await wikiThumb(en, "en"); }catch(e){}
+    if(!src){ try{ src = await wikiThumb(pt, "pt"); }catch(e){} }
+    if(src){ photos[d.n] = src; applyPhoto(d.n, src); ok++; }
+    else fail.push(d.nome);
+  }
+  status.textContent = fail.length
+    ? `${ok} fotos carregadas. Sem foto automática: ${fail.join(", ")} — coloque à mão pelo botão Trocar foto.`
+    : `Todas as ${ok} fotos foram carregadas.`;
+  btn.disabled = false;
+}
+
+/* ---------- trocar foto (preview local + salvar no servidor) ---------- */
+const picker = document.createElement("input");
+picker.type="file"; picker.accept="image/*";
+let pickTarget=null;
+
+let uploadAuth = null;
+async function ensureUploadAuth(){
+  if(uploadAuth) return uploadAuth;
+  const user = prompt("Usuário pra salvar fotos no servidor:");
+  if(!user) return null;
+  const pass = prompt("Senha:");
+  if(pass === null) return null;
+  uploadAuth = "Basic " + btoa(user + ":" + pass);
+  return uploadAuth;
+}
+
+async function uploadPhoto(n, file){
+  const auth = await ensureUploadAuth();
+  if(!auth) return false;
+  try{
+    const res = await fetch(savedPhotoUrl(n), {
+      method: "PUT",
+      headers: { "Authorization": auth },
+      body: file
+    });
+    if(res.status === 401){
+      uploadAuth = null;
+      status.textContent = "Senha incorreta - a foto ficou só nessa aba, não foi salva no servidor.";
+      return false;
+    }
+    if(!res.ok){
+      status.textContent = "Não foi possível salvar a foto no servidor (ficou só nessa aba).";
+      return false;
+    }
+    return true;
+  }catch(e){
+    status.textContent = "Sem conexão com o servidor - a foto ficou só nessa aba.";
+    return false;
+  }
+}
+
+picker.addEventListener("change", () => {
+  const f = picker.files[0]; if(!f||!pickTarget) return;
+  const n = pickTarget;
+  const rd = new FileReader();
+  rd.onload = async e => {
+    photos[n]=e.target.result; applyPhoto(n,e.target.result); picker.value="";
+    const saved = await uploadPhoto(n, f);
+    if(saved) status.textContent = `Foto da figurinha #${String(n).padStart(2,"0")} salva no servidor - vai continuar aparecendo da próxima vez que abrir a página.`;
+  };
+  rd.readAsDataURL(f);
+});
+function pickPhoto(n){ pickTarget=n; picker.click(); }
+
+grid.addEventListener("click", e => {
+  const ph = e.target.closest(".photo");
+  if(ph){ pickPhoto(ph.dataset.n); return; }
+  const b = e.target.closest("button[data-act]");
+  if(!b) return;
+  if(b.dataset.act==="foto") pickPhoto(b.dataset.n);
+  else downloadNode(document.getElementById("card-"+b.dataset.n), "figurinha-"+String(b.dataset.n).padStart(2,"0"), 2);
+});
+
+/* ---------------- export ---------------- */
+const status = document.getElementById("status");
+async function downloadNode(node, filename, scale){
+  if(typeof html2canvas === "undefined"){
+    status.textContent = "A biblioteca de exportação não carregou. Sem internet, use um print de tela do card.";
+    return;
+  }
+  const holder = document.getElementById("hidden");
+  const clone = node.cloneNode(true);
+  clone.style.transform = "none";
+  holder.innerHTML = ""; holder.appendChild(clone);
+  try{
+    const canvas = await html2canvas(clone, {scale: scale||2, backgroundColor:null, useCORS:true, logging:false});
+    const a = document.createElement("a");
+    a.download = filename + ".png";
+    a.href = canvas.toDataURL("image/png");
+    a.click();
+  }catch(err){
+    status.textContent = "Não deu para exportar esse card. Se a foto veio de um link da internet, salve a imagem no computador e envie pelo botão Trocar foto.";
+    console.error(err);
+  }finally{ holder.innerHTML=""; }
+}
+
+document.getElementById("dlAll").addEventListener("click", async e => {
+  const btn = e.currentTarget; btn.disabled = true;
+  const cards = [...grid.querySelectorAll(".card")];
+  for(let i=0;i<cards.length;i++){
+    status.textContent = `Exportando ${i+1} de ${cards.length}…`;
+    await downloadNode(cards[i], "figurinha-"+cards[i].id.replace("card-","").padStart(2,"0"), 2);
+    await new Promise(r=>setTimeout(r,450));
+  }
+  status.textContent = "Pronto. Confira a pasta de downloads.";
+  btn.disabled = false;
+});
+
+/* ---------------- capa ---------------- */
+document.getElementById("capaStage").innerHTML = `
+<div class="card lendaria" id="capaCard" style="width:620px;height:840px">
+  <div class="inner" style="background:radial-gradient(120% 90% at 50% 0%,#1d3a63,#0B1C36 70%)">
+    <div style="padding:44px 38px 0;text-align:center">
+      <div style="font-family:var(--mono);font-size:13px;letter-spacing:.32em;color:#FFDF00;text-transform:uppercase">Álbum de figurinhas</div>
+      <h2 style="font-family:var(--display);text-transform:uppercase;color:#fff;font-size:56px;line-height:.92;margin:16px 0 0;text-shadow:0 4px 0 rgba(0,0,0,.5)">Grandes<br>Matemáticos</h2>
+      <div style="width:120px;height:4px;background:#FFDF00;margin:22px auto 0"></div>
+      <p style="color:#B9CBC2;font-size:17px;line-height:1.5;margin:22px 34px 0">28 lendas que mudaram a forma como calculamos, pensamos e entendemos o universo.</p>
+    </div>
+    <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:10px 40px">
+      <div style="font-family:Georgia,serif;font-style:italic;color:rgba(255,255,255,.16);font-size:34px;line-height:1.8;text-align:center">
+        a² + b² = c²<br>e<sup>iπ</sup> + 1 = 0<br>∫ f(x) dx<br>1, 1, 2, 3, 5, 8, 13…
+      </div>
+    </div>
+    <div style="background:#F6F1E4;color:#111827;padding:22px 38px 26px">
+      <div style="font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:#7a7057;text-transform:uppercase">Grupo</div>
+      <div contenteditable="true" style="font-size:20px;font-weight:700;margin-top:6px">Nome 1 · Nome 2 · Nome 3 · Nome 4</div>
+      <div contenteditable="true" style="font-family:var(--mono);font-size:13px;color:#5c6b78;margin-top:10px">Turma ___ · Professor(a) ___ · 2026</div>
+    </div>
+  </div>
+</div>`;
+document.getElementById("dlCapa").addEventListener("click",()=>downloadNode(document.getElementById("capaCard"),"00-capa-album",2));
+document.getElementById("dlTeorema").addEventListener("click",()=>downloadNode(document.getElementById("teoremaSheet"),"pagina-especial-teorema-de-pitagoras",2));
+
+/* ---------------- time dos sonhos ---------------- */
+document.getElementById("pitchWrap").innerHTML = `
+<div class="pitch" id="pitchCard">
+  <div class="lines">
+    <i class="mid"></i><i class="circle"></i><i class="boxT"></i><i class="boxB"></i>
+  </div>
+  <div style="position:absolute;top:2%;left:0;right:0;text-align:center;color:#fff;font-family:var(--display);font-size:20px;text-transform:uppercase;letter-spacing:.05em;text-shadow:0 2px 6px rgba(0,0,0,.7)">Time dos Sonhos da Matemática</div>
+  ${TIME.map(p=>`<div class="player" style="left:${p.x}%;top:${p.y}%">
+      <div class="shirt">${p.num}</div>
+      <div class="nm">${p.n}</div>
+      <div class="ps">${p.p}</div>
+    </div>`).join("")}
+  <div style="position:absolute;bottom:1.5%;left:0;right:0;text-align:center;color:#d8ffe9;font-family:var(--mono);font-size:10px;letter-spacing:.16em">ESQUEMA 4-3-3 · TÉCNICO: HIPÁTIA DE ALEXANDRIA</div>
+</div>`;
+document.getElementById("dlTime").addEventListener("click",()=>downloadNode(document.getElementById("pitchCard"),"time-dos-sonhos",2));
+
+/* ---------------- tabs + filtros ---------------- */
+const fCat = document.getElementById("fCat");
+Object.entries(CATS).forEach(([k,v])=>{
+  const o=document.createElement("option"); o.value=k; o.textContent=k+". "+v; fCat.appendChild(o);
+});
+fCat.addEventListener("change",renderGrid);
+document.getElementById("fRar").addEventListener("change",renderGrid);
+
+document.querySelectorAll("nav.tabs button").forEach(b=>{
+  b.addEventListener("click",()=>{
+    document.querySelectorAll("nav.tabs button").forEach(x=>x.setAttribute("aria-selected","false"));
+    b.setAttribute("aria-selected","true");
+    document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+    document.getElementById("p-"+b.dataset.tab).classList.add("active");
+    window.scrollTo({top:0,behavior:"smooth"});
+  });
+});
+
+renderGrid();
+document.getElementById("getPics").addEventListener("click",()=>fetchAllPhotos(true));
+fetchAllPhotos(false);
+</script>
+</body>
+</html>
