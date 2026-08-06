@@ -87,14 +87,10 @@ select,.btn{
 
 /* ---------- CARD 500x700 ---------- */
 .card{
-  width:500px;height:700px;border-radius:20px;padding:11px;position:relative;overflow:hidden;
+  width:500px;height:700px;border-radius:20px;padding:11px;position:relative;
   background:linear-gradient(160deg,#c9cfd6 0%,#8e979f 38%,#eef2f5 52%,#78838c 68%,#b6bec6 100%);
   box-shadow:0 18px 40px rgba(0,0,0,.45),inset 0 0 0 1px rgba(255,255,255,.55),inset 0 0 0 3px rgba(0,0,0,.22),inset 0 2px 3px rgba(255,255,255,.4);
   font-family:var(--body);
-}
-.card::after{
-  content:"";position:absolute;inset:0;z-index:5;pointer-events:none;
-  background:linear-gradient(115deg,transparent 32%,rgba(255,255,255,.24) 47%,transparent 62%);
 }
 .card.rara{background:linear-gradient(160deg,#9fc0ff 0%,#3f6fd8 38%,#dce8ff 52%,#2a55b0 68%,#7fa4f0 100%);box-shadow:0 18px 40px rgba(47,111,237,.4),inset 0 0 0 1px rgba(255,255,255,.6),inset 0 0 0 3px rgba(15,40,90,.35),inset 0 2px 3px rgba(255,255,255,.45)}
 .card.epica{background:linear-gradient(160deg,#cbb4ff 0%,#7b3fe4 38%,#efe6ff 52%,#5a23b8 68%,#a98bf5 100%);box-shadow:0 18px 40px rgba(124,58,237,.45),inset 0 0 0 1px rgba(255,255,255,.6),inset 0 0 0 3px rgba(50,15,90,.35),inset 0 2px 3px rgba(255,255,255,.45)}
@@ -104,10 +100,15 @@ select,.btn{
 .inner{height:100%;border-radius:13px;overflow:hidden;background:var(--midnight);display:flex;flex-direction:column;border:1px solid rgba(0,0,0,.5)}
 
 .photo{
-  height:236px;position:relative;flex:none;
+  height:262px;position:relative;flex:none;
   background:radial-gradient(120% 100% at 50% 0%,#1d3a63 0%,#0B1C36 70%);
   overflow:hidden;
 }
+.accent{height:5px;flex:none;background:linear-gradient(90deg,transparent,var(--gold) 50%,transparent)}
+.card.rara .accent{background:linear-gradient(90deg,transparent,#3f6fd8 50%,transparent)}
+.card.epica .accent{background:linear-gradient(90deg,transparent,#7b3fe4 50%,transparent)}
+.card.lendaria .accent{background:linear-gradient(90deg,transparent,#d9a01a 50%,transparent)}
+.card.brasil .accent{background:linear-gradient(90deg,transparent,#009C3B 50%,transparent)}
 .photo .formulas{
   position:absolute;inset:0;color:rgba(255,255,255,.09);
   font-family:Georgia,"Times New Roman",serif;font-style:italic;
@@ -124,34 +125,45 @@ select,.btn{
 .drop .plus{font-size:26px;line-height:1}
 
 .num{
-  position:absolute;top:12px;left:12px;z-index:3;
-  font-family:var(--mono);font-weight:700;font-size:23px;color:#fff;
-  background:rgba(11,28,54,.86);border:1px solid rgba(255,255,255,.4);
-  padding:4px 12px 5px;border-radius:7px;letter-spacing:.02em;
+  position:absolute;top:0;left:0;z-index:3;
+  font-family:var(--display);font-weight:900;font-size:28px;color:#fff;
+  background:linear-gradient(160deg,rgba(255,255,255,.2),rgba(11,28,54,.94) 55%);
+  border-right:1px solid rgba(255,255,255,.5);border-bottom:1px solid rgba(255,255,255,.5);
+  padding:8px 18px 7px 14px;border-radius:0 0 12px 0;letter-spacing:.02em;
+  text-shadow:0 2px 3px rgba(0,0,0,.6);
+  box-shadow:2px 3px 8px rgba(0,0,0,.4);
 }
 .rar{
-  position:absolute;top:12px;right:12px;z-index:3;text-align:right;
-  background:linear-gradient(160deg,rgba(255,255,255,.16),rgba(11,28,54,.9) 45%);
-  border:1px solid rgba(255,255,255,.5);
-  padding:5px 13px 6px;border-radius:8px;
-  box-shadow:0 3px 8px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.3);
+  position:absolute;top:0;right:0;z-index:3;display:flex;align-items:center;gap:7px;
+  background:linear-gradient(160deg,rgba(255,255,255,.18),rgba(11,28,54,.94) 55%);
+  border-left:1px solid rgba(255,255,255,.5);border-bottom:1px solid rgba(255,255,255,.5);
+  padding:7px 14px 7px 12px;border-radius:0 0 0 12px;
+  box-shadow:-2px 3px 8px rgba(0,0,0,.4);
 }
-.rar .ic{font-size:11px;margin-right:3px;vertical-align:1px;text-shadow:0 1px 2px rgba(0,0,0,.5)}
-.rar b{display:block;font-family:var(--display);font-size:14px;letter-spacing:.12em;color:#fff;line-height:1;text-shadow:0 1px 2px rgba(0,0,0,.5)}
-.rar span{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.2em;margin-top:3px;color:#cfd8e3}
-.card.rara .rar{box-shadow:0 3px 8px rgba(47,111,237,.55),inset 0 1px 0 rgba(255,255,255,.3)}
-.card.rara .rar b,.card.rara .rar .ic{color:#bcd4ff}
-.card.epica .rar{box-shadow:0 3px 8px rgba(124,58,237,.55),inset 0 1px 0 rgba(255,255,255,.3)}
-.card.epica .rar b,.card.epica .rar .ic{color:#d9c6ff}
-.card.lendaria .rar{box-shadow:0 3px 8px rgba(212,160,23,.6),inset 0 1px 0 rgba(255,255,255,.3)}
-.card.lendaria .rar b,.card.lendaria .rar .ic{color:#ffe08a}
-.card.brasil .rar{box-shadow:0 3px 8px rgba(0,156,59,.55),inset 0 1px 0 rgba(255,255,255,.3)}
-.card.brasil .rar b,.card.brasil .rar .ic{color:#a8f0c4}
+.rar-ic{
+  flex:none;width:24px;height:24px;border-radius:50%;
+  background:radial-gradient(circle at 32% 28%,#2c4d80,var(--midnight) 75%);
+  border:1px solid rgba(255,255,255,.4);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.5);
+  box-shadow:0 1px 3px rgba(0,0,0,.4),inset 0 1px 1px rgba(255,255,255,.3);
+}
+.rar-tx{display:flex;flex-direction:column;line-height:1;text-align:left}
+.rar-tx b{font-family:var(--display);font-size:13px;letter-spacing:.1em;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.5)}
+.rar-tx .sub{display:block;font-family:var(--mono);font-size:8.5px;letter-spacing:.18em;margin-top:3px;color:#cfd8e3}
+.card.rara .rar{box-shadow:-2px 3px 8px rgba(47,111,237,.5)}
+.card.rara .rar-tx b,.card.rara .rar-ic{color:#bcd4ff}
+.card.epica .rar{box-shadow:-2px 3px 8px rgba(124,58,237,.5)}
+.card.epica .rar-tx b,.card.epica .rar-ic{color:#d9c6ff}
+.card.lendaria .rar{box-shadow:-2px 3px 8px rgba(212,160,23,.55)}
+.card.lendaria .rar-tx b,.card.lendaria .rar-ic{color:#ffe08a}
+.card.brasil .rar{box-shadow:-2px 3px 8px rgba(0,156,59,.5)}
+.card.brasil .rar-tx b,.card.brasil .rar-ic{color:#a8f0c4}
 
 .namebar{
-  height:48px;flex:none;display:flex;align-items:center;justify-content:center;
+  height:58px;flex:none;display:flex;align-items:center;justify-content:center;
   background:linear-gradient(180deg,#1b3560,#0e2244);border-top:2px solid rgba(255,255,255,.25);border-bottom:2px solid rgba(0,0,0,.5);
-  box-shadow:inset 0 -8px 14px -8px rgba(0,0,0,.35);
+  box-shadow:inset 0 -10px 16px -10px rgba(0,0,0,.4);
 }
 .card.rara .namebar{background:linear-gradient(180deg,#17356e,#0b1e42)}
 .card.epica .namebar{background:linear-gradient(180deg,#33195e,#1a0c33)}
@@ -159,11 +171,11 @@ select,.btn{
 .card.brasil .namebar{background:linear-gradient(180deg,#0a5c2c,#03301a)}
 .namebar h2{
   margin:0;font-family:var(--display);text-transform:uppercase;color:#fff;
-  font-size:29px;letter-spacing:.015em;line-height:1;white-space:nowrap;
-  text-shadow:0 1px 0 rgba(255,255,255,.3),0 3px 1px rgba(0,0,0,.55),0 5px 10px rgba(0,0,0,.5);
+  font-size:37px;letter-spacing:.01em;line-height:1;white-space:nowrap;
+  text-shadow:0 1px 0 rgba(255,255,255,.4),0 -1px 0 rgba(0,0,0,.25),0 4px 1px rgba(0,0,0,.6),0 7px 16px rgba(0,0,0,.55);
 }
-.namebar h2.long{font-size:23px}
-.namebar h2.xlong{font-size:19px}
+.namebar h2.long{font-size:28px}
+.namebar h2.xlong{font-size:21px}
 .card.rara .namebar h2{color:#eaf3ff}
 .card.epica .namebar h2{color:#f2e9ff}
 .card.lendaria .namebar h2{color:#fff6da}
@@ -201,13 +213,14 @@ select,.btn{
 .card.epica .attrs{border-top-color:rgba(203,180,255,.35)}
 .card.lendaria .attrs{border-top-color:rgba(255,224,138,.4)}
 .card.brasil .attrs{border-top-color:rgba(168,240,196,.35)}
-.attrs .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;color:#8fa3c0;text-transform:uppercase;margin-bottom:7px}
-.row{display:flex;align-items:center;gap:9px;margin-bottom:6px}
+.attrs .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;color:#8fa3c0;text-transform:uppercase;margin-bottom:8px}
+.row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
 .row:last-child{margin-bottom:0}
-.row .lab{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:#dbe6f2;width:96px;text-transform:uppercase}
-.bar{flex:1;height:12px;border-radius:7px;background:#1c3155;overflow:hidden;border:1px solid rgba(255,255,255,.14);box-shadow:inset 0 2px 4px rgba(0,0,0,.5)}
-.fill{display:block;height:100%;border-radius:6px;position:relative}
-.fill::after{content:"";position:absolute;inset:0;border-radius:6px;background:linear-gradient(180deg,rgba(255,255,255,.6),rgba(255,255,255,0) 55%)}
+.row .ico{flex:none;width:16px;text-align:center;font-size:13px;line-height:1}
+.row .lab{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:#dbe6f2;width:80px;text-transform:uppercase}
+.bar{flex:1;height:15px;border-radius:999px;background:#1c3155;overflow:hidden;border:1px solid rgba(255,255,255,.14);box-shadow:inset 0 2px 4px rgba(0,0,0,.5)}
+.fill{display:block;height:100%;border-radius:999px;position:relative}
+.fill::after{content:"";position:absolute;inset:0;border-radius:999px;background:linear-gradient(180deg,rgba(255,255,255,.65),rgba(255,255,255,0) 55%)}
 .f1{background:linear-gradient(90deg,#f0468a,#c9126a);box-shadow:0 0 9px rgba(240,70,138,.65)}
 .f2{background:linear-gradient(90deg,#ffd86b,#e8a80f);box-shadow:0 0 9px rgba(232,168,15,.6)}
 .f3{background:linear-gradient(90deg,#ff7a5c,#d92b1c);box-shadow:0 0 9px rgba(217,43,28,.6)}
@@ -612,10 +625,11 @@ function cardHTML(d){
       <div class="photo" data-n="${d.n}">
         <div class="formulas">${FORMULAS.join("<br>")}</div>
         <div class="num">#${String(d.n).padStart(2,"0")}</div>
-        <div class="rar"><b><span class="ic">${r.icon}</span>${r.b}</b><span>${r.s}</span></div>
+        <div class="rar"><span class="rar-ic">${r.icon}</span><span class="rar-tx"><b>${r.b}</b><span class="sub">${r.s}</span></span></div>
         <div class="drop"><span class="plus">+</span>Clique para colocar a foto do(a) cientista</div>
         <div class="shade"></div>
       </div>
+      <div class="accent"></div>
       <div class="namebar"><h2 class="${nameClass(d.nome)}" contenteditable="true">${d.nome}</h2></div>
       <div class="meta">
         <div><span class="k">País</span><span class="v" contenteditable="true">${d.pais}</span></div>
@@ -631,9 +645,9 @@ function cardHTML(d){
       </div>
       <div class="attrs">
         <div class="k">Atributos (0–100)</div>
-        <div class="row"><span class="lab">Raciocínio</span><span class="bar"><span class="fill f1" style="width:${d.a[0]}%"></span></span><span class="val">${d.a[0]}</span></div>
-        <div class="row"><span class="lab">Criatividade</span><span class="bar"><span class="fill f2" style="width:${d.a[1]}%"></span></span><span class="val">${d.a[1]}</span></div>
-        <div class="row"><span class="lab">Impacto</span><span class="bar"><span class="fill f3" style="width:${d.a[2]}%"></span></span><span class="val">${d.a[2]}</span></div>
+        <div class="row"><span class="ico">🧠</span><span class="lab">Raciocínio</span><span class="bar"><span class="fill f1" style="width:${d.a[0]}%"></span></span><span class="val">${d.a[0]}</span></div>
+        <div class="row"><span class="ico">💡</span><span class="lab">Criatividade</span><span class="bar"><span class="fill f2" style="width:${d.a[1]}%"></span></span><span class="val">${d.a[1]}</span></div>
+        <div class="row"><span class="ico">💥</span><span class="lab">Impacto</span><span class="bar"><span class="fill f3" style="width:${d.a[2]}%"></span></span><span class="val">${d.a[2]}</span></div>
       </div>
     </div>
   </div>`;
